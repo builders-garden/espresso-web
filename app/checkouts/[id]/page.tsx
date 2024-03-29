@@ -17,7 +17,7 @@ export default function CheckoutPage({
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
-    PaymentStatus.ERROR
+    PaymentStatus.INITIAL
   );
   const [message, setMessage] = useState<string>("");
   const [checkout, setCheckout] = useState<Checkout>();
@@ -88,7 +88,7 @@ export default function CheckoutPage({
                 paymentStatus === PaymentStatus.ERROR) && (
                 <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                   <PayButton
-                  setMessage={setMessage}
+                    setMessage={setMessage}
                     checkout={checkout!}
                     setPaymentStatus={setPaymentStatus}
                     description={"test tx"}
