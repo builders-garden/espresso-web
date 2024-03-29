@@ -7,7 +7,7 @@ import { WagmiProvider } from "wagmi";
 
 const config = getDefaultConfig({
   appName: "Espresso",
-  projectId: "YOUR_PROJECT_ID",
+  projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID!,
   chains: [base],
   ssr: true,
 });

@@ -41,6 +41,9 @@ export default function CheckoutPage({
               <div className="font-semibold">{shortenAddress(address!)}</div>
             </div>
           )}
+          <div className="flex flex-col justify-center text-center space-y-4">
+            <p className="text-lg font-semibold">Order #{id}</p>
+          </div>
           <div className="flex-1 flex flex-col justify-end space-y-8">
             <div className="flex flex-col">
               {loading && (
