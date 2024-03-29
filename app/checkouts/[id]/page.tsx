@@ -5,10 +5,12 @@ import { Checkout } from "../../../lib/firebase/interfaces";
 import { Button, Spinner } from "@nextui-org/react";
 import PayButton from "../../../components/pay-button";
 import { shortenAddress } from "../../../lib/utils";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { CheckCircleIcon, CheckIcon } from "@heroicons/react/24/outline";
 
 export enum PaymentStatus {
+  INITIAL = "INITIAL",
   PENDING = "PENDING",
   SUCCESS = "SUCCESS",
   ERROR = "ERROR",
@@ -21,9 +23,9 @@ export default function CheckoutPage({
 }) {
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
-  const { data: walletClient } = useWalletClient();
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>();
-  console.log(paymentStatus);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
+    PaymentStatus.ERROR
+  );
   const [checkout, setCheckout] = useState<Checkout>();
   const fetchCheckout = async () => {
     const response = await fetch(`/api/checkouts/${id}`);
@@ -38,8 +40,8 @@ export default function CheckoutPage({
 
   return (
     <>
-      <div className="flex min-h-screen min-w-full">
-        <div className="flex flex-col bg-white flex-1 p-6 justify-center items-center">
+      <div className="flex min-w-full">
+        <div className="flex flex-col bg-white flex-1 p-6 space-y-16 justify-center items-center">
           {address && (
             <div className="flex flex-row justify-between space-x-2">
               <p>Logged in with </p>
@@ -79,29 +81,51 @@ export default function CheckoutPage({
               ))}
             </div>
             {!isConnected && <ConnectButton />}
-            {isConnected && checkout && (
+            {isConnected &&
+              checkout &&
+              (paymentStatus === PaymentStatus.INITIAL ||
+                paymentStatus === PaymentStatus.ERROR) && (
+                <div className="mt-6 flex flex-col justify-center text-center space-y-4">
+                  <PayButton
+                    checkout={checkout!}
+                    setPaymentStatus={setPaymentStatus}
+                    description={"test tx"}
+                    payeeAddress={checkout!.shop?.walletAddress!}
+                    payerAddress={address!}
+                    amount={
+                      checkout?.items.reduce(
+                        (acc, item) => acc + item.item.price * item.quantity,
+                        0
+                      ) || 0
+                    }
+                  />
+                  <Button
+                    className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+                    size="lg"
+                    radius="sm"
+                    fullWidth
+                  >
+                    Buy Now Pay Later ⚡️
+                  </Button>
+                </div>
+              )}
+            {paymentStatus === PaymentStatus.PENDING && (
               <div className="mt-6 flex flex-col justify-center text-center space-y-4">
-                <PayButton
-                  checkout={checkout!}
-                  setPaymentStatus={setPaymentStatus}
-                  description={"test tx"}
-                  payeeAddress={checkout!.shop?.walletAddress!}
-                  payerAddress={address!}
-                  amount={
-                    checkout?.items.reduce(
-                      (acc, item) => acc + item.item.price * item.quantity,
-                      0
-                    ) || 0
-                  }
-                />
-                <Button
-                  className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-                  size="lg"
-                  radius="sm"
-                  fullWidth
-                >
-                  Buy Now Pay Later ⚡️
-                </Button>
+                <Spinner />
+                <p>Processing payment...</p>
+              </div>
+            )}
+            {paymentStatus === PaymentStatus.SUCCESS && (
+              <div className="mt-6 flex flex-col justify-center text-center items-center space-y-4">
+                <CheckCircleIcon className="w-12 h-12 text-green-500" />
+                <p className="text-xl font-bold">Payment successful!</p>
+              </div>
+            )}
+            {paymentStatus === PaymentStatus.ERROR && (
+              <div className="mt-6 flex flex-col justify-center text-center space-y-4">
+                <p className="text-red-500">
+                  Payment failed, please try again.
+                </p>
               </div>
             )}
           </div>

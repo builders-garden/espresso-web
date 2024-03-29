@@ -83,12 +83,20 @@ export function useCreateAndPayRequest(
       // Send payment transaction
       await sendPaymentTransaction(requestData, ethersSigner!);
 
+      console.log("Payment sent");
+      console.log("updating checkout", {
+        ...checkout,
+        requestId: requestData.requestId,
+        payerAddress,
+        amount,
+      });
       await setCheckout(checkout.id, {
         ...checkout,
         requestId: requestData.requestId,
         payerAddress,
         amount,
       });
+      console.log("Checkout updated", checkout.id);
 
       return createdRequest.requestId;
     },

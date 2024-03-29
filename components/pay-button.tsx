@@ -22,6 +22,7 @@ export default function PayButton({
   amount,
   setPaymentStatus,
 }: PayButtonProps) {
+  console.log(checkout);
   const {
     mutate: createAndPayRequest,
     isPending: isCreateAndPayPending,

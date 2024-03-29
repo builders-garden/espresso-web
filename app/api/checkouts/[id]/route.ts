@@ -10,6 +10,7 @@ export const GET = async (
     return NextResponse.json("Checkout not found", { status: 400 });
   const shop = await getShop(checkout.data().shopId);
   return NextResponse.json({
+    id,
     ...checkout.data(),
     shop: shop.data(),
   });
