@@ -8,6 +8,7 @@ import { PaymentStatus, shortenAddress } from "../../../lib/utils";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import BNPLButton from "../../../components/bnpl-button";
 
 export default function CheckoutPage({
   params: { id },
@@ -85,7 +86,15 @@ export default function CheckoutPage({
               {checkout && (
                 <div className="flex flex-row justify-between mt-4">
                   <p className="text-3xl font-bold">Total</p>
-                  <p className="text-3xl font-bold">$5.00</p>
+                  <p className="text-3xl font-bold">
+                    $
+                    {checkout.items
+                      .reduce(
+                        (acc, item) => acc + item.item.price * item.quantity,
+                        0
+                      )
+                      .toFixed(2)}
+                  </p>
                 </div>
               )}
             </div>
@@ -107,14 +116,16 @@ export default function CheckoutPage({
                       ) || 0
                     }
                   />
-                  <Button
-                    className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-                    size="lg"
-                    radius="sm"
-                    fullWidth
-                  >
-                    Buy Now Pay Later ⚡️
-                  </Button>
+                  <BNPLButton
+                    amount={
+                      checkout?.items.reduce(
+                        (acc, item) => acc + item.item.price * item.quantity,
+                        0
+                      ) || 0
+                    }
+                    sablierTokenId={1}
+                    payeeAddress={checkout!.shop?.walletAddress!}
+                  />
                 </div>
               )}
             {isConnected && paymentStatus === PaymentStatus.PENDING && (
