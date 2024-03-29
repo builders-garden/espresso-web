@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Checkout } from "../../../lib/firebase/interfaces";
-import { Button, Spinner } from "@nextui-org/react";
+import { Spinner } from "@nextui-org/react";
 import PayButton from "../../../components/pay-button";
-import { PaymentStatus, shortenAddress } from "../../../lib/utils";
+import { PaymentStatus } from "../../../lib/utils";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
@@ -110,7 +110,7 @@ export default function CheckoutPage({
                     payeeAddress={checkout!.shop?.walletAddress!}
                     payerAddress={address!}
                     amount={
-                      checkout?.items.reduce(
+                      checkout?.items?.reduce(
                         (acc, item) => acc + item.item.price * item.quantity,
                         0
                       ) || 0
@@ -118,12 +118,13 @@ export default function CheckoutPage({
                   />
                   <BNPLButton
                     amount={
-                      checkout?.items.reduce(
+                      checkout?.items?.reduce(
                         (acc, item) => acc + item.item.price * item.quantity,
                         0
                       ) || 0
                     }
-                    sablierTokenId={1}
+                    sablierTokenId={3}
+                    setPaymentStatus={setPaymentStatus}
                     payeeAddress={checkout!.shop?.walletAddress!}
                   />
                 </div>
