@@ -16,8 +16,6 @@
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "^2.0.12",
     "@nextui-org/react": "^2.2.10",
-    "@privy-io/react-auth": "1.54.0",
-    "@privy-io/wagmi": "^0.2.2",
     "@requestnetwork/payment-processor": "^0.43.0",
     "@requestnetwork/request-client.js": "^0.45.0",
     "@requestnetwork/web3-signature": "^0.4.41",
@@ -30,7 +28,10 @@
     "next-auth": "^4.24.7",
     "react": "18.2.0",
     "viem": "^2.9.5",
-    "wagmi": "^2.5.13"
+    "wagmi": "^2.5.13",
+    "@wagmi/connectors": "^4.1.19",
+    "@wagmi/core": "^2.6.10",
+    "@rainbow-me/rainbowkit": "^2.0.4"
   },
   "devDependencies": {
     "@tsconfig/next": "^2.0.0",

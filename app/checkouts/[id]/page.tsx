@@ -1,18 +1,28 @@
 "use client";
 
-import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { Checkout } from "../../../lib/firebase/interfaces";
 import { Button, Spinner } from "@nextui-org/react";
 import PayButton from "../../../components/pay-button";
+import { shortenAddress } from "../../../lib/utils";
+import { useAccount, useWalletClient } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
+export enum PaymentStatus {
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
+}
 
 export default function CheckoutPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  const { login, user } = usePrivy();
+  const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
+  const { data: walletClient } = useWalletClient();
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>();
 
   const [checkout, setCheckout] = useState<Checkout>();
   const fetchCheckout = async () => {
@@ -21,7 +31,6 @@ export default function CheckoutPage({
     setCheckout(data);
   };
 
-  console.log(user);
   useEffect(() => {
     fetchCheckout();
     setLoading(false);
@@ -30,16 +39,27 @@ export default function CheckoutPage({
   return (
     <>
       <div className="flex min-h-screen min-w-full">
-        <div className="flex bg-white flex-1 p-6 justify-center items-center">
-          <div className="flex flex-col space-y-8">
+        <div className="flex flex-col bg-white flex-1 p-6 justify-center items-center">
+          {address && (
+            <div className="flex flex-row justify-between space-x-2">
+              <p>Logged in with </p>
+              <div className="font-semibold">{shortenAddress(address!)}</div>
+            </div>
+          )}
+          <div className="flex-1 flex flex-col justify-end space-y-8">
             <div className="flex flex-col">
-              {loading && <Spinner />}
+              {loading && (
+                <div className="flex flex-col space-y-4">
+                  <Spinner />
+                  <p>Loading payment details...</p>
+                </div>
+              )}
               {checkout?.items.map((item, index) => (
                 <div
                   className={`flex flex-row space-x-16 justify-between items-center p-4 rounded-lg ${
                     index % 2 === 0 ? "bg-gray-100/70" : ""
                   }`}
-                  id={"i-" + item.item.id}
+                  id={"i-" + item.item.name}
                 >
                   <div className="flex-1 flex flex-row space-x-2 items-center">
                     <p className="text-3xl">{item.item.emoji}</p>
@@ -58,20 +78,15 @@ export default function CheckoutPage({
                 </div>
               ))}
             </div>
-            {!user && (
-              <Button
-                className="bg-violet-600 hover:bg-violet-700 py-3 px-6 text-white rounded-lg"
-                onClick={login}
-              >
-                Connect your wallet
-              </Button>
-            )}
-            {user && (
+            {!isConnected && <ConnectButton />}
+            {isConnected && checkout && (
               <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                 <PayButton
+                  checkout={checkout!}
+                  setPaymentStatus={setPaymentStatus}
                   description={"test tx"}
-                  payeeAddress={checkout!.shop?.address!}
-                  payerAddress={user.wallet?.address!}
+                  payeeAddress={checkout!.shop?.walletAddress!}
+                  payerAddress={address!}
                   amount={
                     checkout?.items.reduce(
                       (acc, item) => acc + item.item.price * item.quantity,

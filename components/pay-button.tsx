@@ -2,19 +2,25 @@ import { Button } from "@nextui-org/react";
 import { useCreateAndPayRequest } from "../lib/hooks/use-create-and-pay-request";
 import { parseUnits } from "viem";
 import { BASE_USDC_ADDRESS } from "../lib/constants";
+import { PaymentStatus } from "../app/checkouts/[id]/page";
+import { Checkout } from "../lib/firebase/interfaces";
 
 export type PayButtonProps = {
   description: string;
   payeeAddress: string;
   payerAddress: string;
   amount: number;
+  checkout: Checkout;
+  setPaymentStatus: (status: PaymentStatus) => void;
 };
 
 export default function PayButton({
+  checkout,
   description,
   payeeAddress,
   payerAddress,
   amount,
+  setPaymentStatus,
 }: PayButtonProps) {
   const {
     mutate: createAndPayRequest,
@@ -23,15 +29,18 @@ export default function PayButton({
   } = useCreateAndPayRequest({
     onSuccess() {
       console.log("Request created and paid");
+      setPaymentStatus(PaymentStatus.SUCCESS);
     },
     onError(error: any) {
       console.error(error);
+      setPaymentStatus(PaymentStatus.ERROR);
     },
   });
 
   const onPayRequest = async () => {
+    setPaymentStatus(PaymentStatus.PENDING);
     createAndPayRequest({
-      payeeAddress: payeeAddress,
+      checkout,
       payerAddress: payerAddress,
       amount: amount,
       requestParams: {
@@ -52,7 +61,6 @@ export default function PayButton({
     <Button
       isLoading={isPending}
       isDisabled={isPending || isSuccess}
-      
       color="primary"
       size="lg"
       radius="sm"

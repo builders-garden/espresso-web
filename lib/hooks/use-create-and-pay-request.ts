@@ -13,41 +13,43 @@ import { getRequestData } from "../request-network/retrieve-requests";
 import { Web3SignatureProvider } from "@requestnetwork/web3-signature";
 import { useEthersV5Provider } from "./use-ethers-v5-provider";
 import { useEthersV5Signer } from "./use-ethers-v5-signer";
+import { base } from "viem/chains";
+import { setCheckout } from "../firebase/checkout";
+import { Checkout } from "../firebase/interfaces";
 
 interface UseCreateAndPayRequestParams {
-  payeeAddress: string;
   payerAddress: string;
   amount: number;
   requestParams: CreateRequestParams;
+  checkout: Checkout;
 }
 
 export function useCreateAndPayRequest(
   options?: Omit<
-    UseMutationOptions<null, Error, UseCreateAndPayRequestParams, unknown>,
+    UseMutationOptions<string, Error, UseCreateAndPayRequestParams, unknown>,
     "mutationFn"
   >
 ) {
   const { address } = useAccount();
-  const { data: provider } = useWalletClient();
-  const signer = new Web3SignatureProvider(provider);
-
-  const ethersProvider = useEthersV5Provider();
-  const ethersSigner = useEthersV5Signer();
+  const { data: walletClient } = useWalletClient();
+  const ethersProvider = useEthersV5Provider({ chainId: base.id });
+  const ethersSigner = useEthersV5Signer({ chainId: base.id });
 
   return useMutation({
     mutationFn: async ({
-      payeeAddress,
+      checkout,
       payerAddress,
       amount,
       requestParams,
     }: UseCreateAndPayRequestParams) => {
+      const signer = new Web3SignatureProvider(walletClient);
       if (!address || !signer) throw new Error("Account not initialized");
-      if (!provider) throw new Error("Wallet client not initialized");
+      if (!walletClient) throw new Error("Wallet client not initialized");
 
       // Create request
       const requestCreateParameters = createRequestParameters(requestParams);
       console.log("Getting request client...");
-      const requestClient = getRequestClient(provider);
+      const requestClient = getRequestClient(walletClient);
 
       console.log("Creating request...", requestCreateParameters);
       const createdRequest = await requestClient.createRequest(
@@ -81,7 +83,14 @@ export function useCreateAndPayRequest(
       // Send payment transaction
       await sendPaymentTransaction(requestData, ethersSigner!);
 
-      return null;
+      await setCheckout(checkout.id, {
+        ...checkout,
+        requestId: requestData.requestId,
+        payerAddress,
+        amount,
+      });
+
+      return createdRequest.requestId;
     },
     ...options,
   });

@@ -26,4 +26,7 @@ export interface Checkout {
   items: CheckoutItems[];
   createdAt: Date;
   shop?: Shop;
+  requestId?: string;
+  amount?: number;
+  payerAddress?: string;
 }
