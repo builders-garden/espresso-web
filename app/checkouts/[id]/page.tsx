@@ -19,7 +19,6 @@ export default function CheckoutPage({
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
     PaymentStatus.INITIAL
   );
-  const [message, setMessage] = useState<string>("");
   const [checkout, setCheckout] = useState<Checkout>();
   const fetchCheckout = async () => {
     const response = await fetch(`/api/checkouts/${id}`);
@@ -36,21 +35,28 @@ export default function CheckoutPage({
     <>
       <div className="flex min-w-full">
         <div className="flex flex-col bg-white flex-1 p-6 space-y-16 justify-center items-center">
-          {address && (
-            <div className="flex flex-row justify-between space-x-2">
-              <p>Logged in with </p>
-              <div className="font-semibold">{shortenAddress(address!)}</div>
-            </div>
-          )}
-          <div className="flex flex-col justify-center text-center space-y-4">
-            <p className="text-lg font-semibold">Order #{id}</p>
+          <div className="flex flex-col justify-center">
+            <ConnectButton chainStatus={"full"} accountStatus={"full"} />
           </div>
           <div className="flex-1 flex flex-col justify-end space-y-8">
             <div className="flex flex-col">
               {loading && (
                 <div className="flex flex-col space-y-4">
                   <Spinner />
-                  <p>Loading payment details...</p>
+                  <p>Loading order details...</p>
+                </div>
+              )}
+              {checkout && (
+                <div className="flex flex-col justify-start">
+                  <div className="flex flex-col justify-center space-y-4 mb-8">
+                    <p className="text-center text-2xl font-bold">
+                      {checkout.shop?.name}
+                    </p>
+                  </div>
+                  <div className="flex flex-col justify-start space-y-1 mb-4">
+                    <p className="text-xl font-medium">Items in your order</p>
+                    <p className="text-xs font-medium">#{id}</p>
+                  </div>
                 </div>
               )}
               {checkout?.items.map((item, index) => (
@@ -58,7 +64,7 @@ export default function CheckoutPage({
                   className={`flex flex-row space-x-16 justify-between items-center p-4 rounded-lg ${
                     index % 2 === 0 ? "bg-gray-100/70" : ""
                   }`}
-                  id={"i-" + item.item.name}
+                  id={`${item.item.id}-${index}`}
                 >
                   <div className="flex-1 flex flex-row space-x-2 items-center">
                     <p className="text-3xl">{item.item.emoji}</p>
@@ -76,22 +82,22 @@ export default function CheckoutPage({
                   </div>
                 </div>
               ))}
+              {checkout && (
+                <div className="flex flex-row justify-between mt-4">
+                  <p className="text-3xl font-bold">Total</p>
+                  <p className="text-3xl font-bold">$5.00</p>
+                </div>
+              )}
             </div>
-            {!isConnected && (
-              <div className="flex flex-col justify-center">
-                <ConnectButton />
-              </div>
-            )}
             {isConnected &&
               checkout &&
               (paymentStatus === PaymentStatus.INITIAL ||
                 paymentStatus === PaymentStatus.ERROR) && (
                 <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                   <PayButton
-                    setMessage={setMessage}
                     checkout={checkout!}
                     setPaymentStatus={setPaymentStatus}
-                    description={"test tx"}
+                    description={`Checkout with shop ${checkout!.shop?.name}`}
                     payeeAddress={checkout!.shop?.walletAddress!}
                     payerAddress={address!}
                     amount={
@@ -128,11 +134,6 @@ export default function CheckoutPage({
                 <p className="text-red-500">
                   Payment failed, please try again.
                 </p>
-              </div>
-            )}
-            {message && (
-              <div className="mt-6 flex flex-col justify-center text-center space-y-4">
-                <p>{message}</p>
               </div>
             )}
           </div>

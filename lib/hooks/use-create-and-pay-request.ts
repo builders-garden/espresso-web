@@ -22,7 +22,6 @@ interface UseCreateAndPayRequestParams {
   amount: number;
   requestParams: CreateRequestParams;
   checkout: Checkout;
-  setMessage: (message: string) => void;
 }
 
 export function useCreateAndPayRequest(
@@ -42,7 +41,6 @@ export function useCreateAndPayRequest(
       payerAddress,
       amount,
       requestParams,
-      setMessage,
     }: UseCreateAndPayRequestParams) => {
       const signer = new Web3SignatureProvider(walletClient);
       if (!address || !signer) throw new Error("Account not initialized");
@@ -70,7 +68,6 @@ export function useCreateAndPayRequest(
       );
 
       console.log("Request data", requestData);
-      setMessage("Processing payment...");
       console.log("Processing payment...");
       const { success, message } = await processPayment(
         requestData,
@@ -80,16 +77,13 @@ export function useCreateAndPayRequest(
       );
       if (!success) {
         console.error(message);
-        setMessage("Error processing payment\n" + message);
         throw new Error(message);
       }
 
       // Send payment transaction
-      setMessage("Sending payment...");
       await sendPaymentTransaction(requestData, ethersSigner!);
 
       console.log("Payment sent");
-      setMessage("Payment sent");
       console.log("updating checkout", {
         ...checkout,
         requestId: requestData.requestId,
@@ -103,7 +97,6 @@ export function useCreateAndPayRequest(
         amount,
       });
       console.log("Checkout updated", checkout.id);
-      setMessage("Checkout updated\n" + checkout.id);
       return createdRequest.requestId;
     },
     ...options,

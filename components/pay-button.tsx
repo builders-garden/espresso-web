@@ -12,11 +12,9 @@ export type PayButtonProps = {
   amount: number;
   checkout: Checkout;
   setPaymentStatus: (status: PaymentStatus) => void;
-  setMessage: (message: string) => void;
 };
 
 export default function PayButton({
-  setMessage,
   checkout,
   description,
   payeeAddress,
@@ -35,7 +33,6 @@ export default function PayButton({
     },
     onError(error: any) {
       console.error(error);
-      setMessage("Error creating request\n" + error.message);
       setPaymentStatus(PaymentStatus.ERROR);
     },
   });
@@ -46,7 +43,6 @@ export default function PayButton({
       checkout,
       payerAddress: payerAddress,
       amount: amount,
-      setMessage,
       requestParams: {
         payerIdentity: payerAddress,
         payeeIdentity: payeeAddress,
