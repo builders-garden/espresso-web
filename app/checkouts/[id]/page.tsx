@@ -4,17 +4,10 @@ import { useEffect, useState } from "react";
 import { Checkout } from "../../../lib/firebase/interfaces";
 import { Button, Spinner } from "@nextui-org/react";
 import PayButton from "../../../components/pay-button";
-import { shortenAddress } from "../../../lib/utils";
+import { PaymentStatus, shortenAddress } from "../../../lib/utils";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { CheckCircleIcon, CheckIcon } from "@heroicons/react/24/outline";
-
-export enum PaymentStatus {
-  INITIAL = "INITIAL",
-  PENDING = "PENDING",
-  SUCCESS = "SUCCESS",
-  ERROR = "ERROR",
-}
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
 export default function CheckoutPage({
   params: { id },
@@ -80,7 +73,11 @@ export default function CheckoutPage({
                 </div>
               ))}
             </div>
-            {!isConnected && <ConnectButton />}
+            {!isConnected && (
+              <div className="flex flex-col justify-center">
+                <ConnectButton />
+              </div>
+            )}
             {isConnected &&
               checkout &&
               (paymentStatus === PaymentStatus.INITIAL ||
@@ -109,19 +106,19 @@ export default function CheckoutPage({
                   </Button>
                 </div>
               )}
-            {paymentStatus === PaymentStatus.PENDING && (
+            {isConnected && paymentStatus === PaymentStatus.PENDING && (
               <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                 <Spinner />
                 <p>Processing payment...</p>
               </div>
             )}
-            {paymentStatus === PaymentStatus.SUCCESS && (
+            {isConnected && paymentStatus === PaymentStatus.SUCCESS && (
               <div className="mt-6 flex flex-col justify-center text-center items-center space-y-4">
                 <CheckCircleIcon className="w-12 h-12 text-green-500" />
                 <p className="text-xl font-bold">Payment successful!</p>
               </div>
             )}
-            {paymentStatus === PaymentStatus.ERROR && (
+            {isConnected && paymentStatus === PaymentStatus.ERROR && (
               <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                 <p className="text-red-500">
                   Payment failed, please try again.

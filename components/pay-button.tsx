@@ -2,8 +2,8 @@ import { Button } from "@nextui-org/react";
 import { useCreateAndPayRequest } from "../lib/hooks/use-create-and-pay-request";
 import { parseUnits } from "viem";
 import { BASE_USDC_ADDRESS } from "../lib/constants";
-import { PaymentStatus } from "../app/checkouts/[id]/page";
 import { Checkout } from "../lib/firebase/interfaces";
+import { PaymentStatus } from "../lib/utils";
 
 export type PayButtonProps = {
   description: string;
