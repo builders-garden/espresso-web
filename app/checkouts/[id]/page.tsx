@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { Checkout } from "../../../lib/firebase/interfaces";
-import { Spinner } from "@nextui-org/react";
+import { Image, Spinner } from "@nextui-org/react";
 import PayButton from "../../../components/pay-button";
 import { PaymentStatus } from "../../../lib/utils";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import BNPLButton from "../../../components/bnpl-button";
+import { NFT } from "../../../lib/moralis";
 
 export default function CheckoutPage({
   params: { id },
@@ -17,6 +18,8 @@ export default function CheckoutPage({
 }) {
   const { address, isConnected } = useAccount();
   const [loading, setLoading] = useState(true);
+  const [tokenId, setTokenId] = useState<string>();
+  const [nfts, setNFTs] = useState<{ tokenId: string; image: string }[]>([]);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
     PaymentStatus.INITIAL
   );
@@ -27,10 +30,21 @@ export default function CheckoutPage({
     setCheckout(data);
   };
 
+  const fetchNFTs = async () => {
+    if (!address) return;
+    const response = await fetch(`/api/nfts/${address}`);
+    const data = await response.json();
+    //setNFTs(data);
+  };
+
   useEffect(() => {
     fetchCheckout();
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchNFTs();
+  }, [address]);
 
   return (
     <>
@@ -117,16 +131,45 @@ export default function CheckoutPage({
                     }
                   />
                   <BNPLButton
+                    payerAddress={address!}
+                    checkout={checkout!}
+                    disabled={!nfts || nfts?.length === 0}
                     amount={
                       checkout?.items?.reduce(
                         (acc, item) => acc + item.item.price * item.quantity,
                         0
                       ) || 0
                     }
-                    sablierTokenId={3}
+                    sablierTokenId={parseInt(tokenId!)}
                     setPaymentStatus={setPaymentStatus}
                     payeeAddress={checkout!.shop?.walletAddress!}
                   />
+
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {nfts?.length > 0
+                        ? "Lock your stream, and we will pay for you"
+                        : "No streams available to lock for payment"}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {nfts.map((nft, index) => (
+                      <div
+                        className={`${
+                          nft.tokenId === tokenId ? "" : "opacity-50"
+                        }`}
+                      >
+                        <Image
+                          onClick={() => setTokenId(nft.tokenId)}
+                          id={`${nft.tokenId}-${index}`}
+                          className="rounded-lg"
+                          src={nft.image}
+                          width={400}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             {isConnected && paymentStatus === PaymentStatus.PENDING && (
@@ -153,4 +196,7 @@ export default function CheckoutPage({
       </div>
     </>
   );
+}
+function setNFTs(data: any) {
+  throw new Error("Function not implemented.");
 }

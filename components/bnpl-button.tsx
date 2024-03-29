@@ -9,18 +9,26 @@ import { ESPRESSO_BNPL_ABI } from "../lib/sablier/espresso-abi";
 import { baseSepolia } from "viem/chains";
 import { createPublicClient, http } from "viem";
 import { PaymentStatus } from "../lib/utils";
+import { Checkout } from "../lib/firebase/interfaces";
+import { setCheckout } from "../lib/firebase/checkout";
 
 export type BNPLButtonProps = {
+  checkout: Checkout;
+  disabled: boolean;
   amount: number;
   sablierTokenId: number;
   payeeAddress: string;
+  payerAddress: string;
   setPaymentStatus: (isPending: PaymentStatus) => void;
 };
 export default function BNPLButton({
+  checkout,
+  disabled,
   setPaymentStatus,
   amount,
   sablierTokenId,
   payeeAddress,
+  payerAddress,
 }: BNPLButtonProps) {
   const { writeContractAsync } = useWriteContract();
   const buyNowPayLater = async () => {
@@ -51,12 +59,23 @@ export default function BNPLButton({
     await publicClient.waitForTransactionReceipt({
       hash: tx as `0x${string}`,
     });
-    setPaymentStatus(PaymentStatus.SUCCESS);
+    await setCheckout(checkout.id, {
+      ...checkout,
+      payerAddress,
+      amount,
+      nftAddress: MOCK_SABLIER_NFT_COLLATERAL,
+      nftTokenId: sablierTokenId,
+    });
+    await setPaymentStatus(PaymentStatus.SUCCESS);
   };
   return (
     <Button
+      isDisabled={disabled}
+      color={disabled ? "primary" : undefined}
       onClick={buyNowPayLater}
-      className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+      className={
+        "bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+      }
       size="lg"
       radius="sm"
       fullWidth

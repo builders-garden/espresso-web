@@ -20,7 +20,6 @@ export interface Item {
   shopId: string;
 }
 
-
 export interface Checkout {
   id: string;
   shopId: string;
@@ -30,4 +29,6 @@ export interface Checkout {
   requestId?: string;
   amount?: number;
   payerAddress?: string;
+  nftAddress?: string;
+  nftTokenId?: number;
 }
