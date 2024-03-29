@@ -23,7 +23,7 @@ export default function CheckoutPage({
   const [loading, setLoading] = useState(true);
   const { data: walletClient } = useWalletClient();
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>();
-
+  console.log(paymentStatus);
   const [checkout, setCheckout] = useState<Checkout>();
   const fetchCheckout = async () => {
     const response = await fetch(`/api/checkouts/${id}`);
