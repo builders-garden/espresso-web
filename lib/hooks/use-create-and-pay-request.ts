@@ -51,21 +51,17 @@ export function useCreateAndPayRequest(
       // Create request
       const requestCreateParameters = createRequestParameters(requestParams);
       console.log("Getting request client...");
-      setMessage("Getting request client...");
       const requestClient = getRequestClient(walletClient);
 
-      console.log("Creating request...\n" + requestCreateParameters);
-      setMessage("Creating request...\n" + requestCreateParameters);
+      console.log("Creating request..." + requestCreateParameters);
       const createdRequest = await requestClient.createRequest(
         requestCreateParameters
       );
 
       console.log("Waiting confirmation...");
-      setMessage("Waiting confirmation...");
       const confirmedRequestData = await createdRequest.waitForConfirmation();
 
       console.log("Request created", confirmedRequestData.requestId);
-      setMessage("Request created\n" + confirmedRequestData.requestId);
 
       // Prepare for payment
       const requestData = await getRequestData(
@@ -73,7 +69,6 @@ export function useCreateAndPayRequest(
         confirmedRequestData.requestId
       );
 
-      setMessage("Request data\n" + requestData);
       console.log("Request data", requestData);
       setMessage("Processing payment...");
       console.log("Processing payment...");
@@ -85,6 +80,7 @@ export function useCreateAndPayRequest(
       );
       if (!success) {
         console.error(message);
+        setMessage("Error processing payment\n" + message);
         throw new Error(message);
       }
 
