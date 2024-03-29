@@ -24,7 +24,6 @@ export default function PayButton({
   amount,
   setPaymentStatus,
 }: PayButtonProps) {
-  console.log(checkout);
   const {
     mutate: createAndPayRequest,
     isPending: isCreateAndPayPending,
@@ -36,6 +35,7 @@ export default function PayButton({
     },
     onError(error: any) {
       console.error(error);
+      setMessage("Error creating request\n" + error.message);
       setPaymentStatus(PaymentStatus.ERROR);
     },
   });
