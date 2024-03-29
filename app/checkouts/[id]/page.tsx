@@ -19,6 +19,7 @@ export default function CheckoutPage({
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
     PaymentStatus.ERROR
   );
+  const [message, setMessage] = useState<string>("");
   const [checkout, setCheckout] = useState<Checkout>();
   const fetchCheckout = async () => {
     const response = await fetch(`/api/checkouts/${id}`);
@@ -87,6 +88,7 @@ export default function CheckoutPage({
                 paymentStatus === PaymentStatus.ERROR) && (
                 <div className="mt-6 flex flex-col justify-center text-center space-y-4">
                   <PayButton
+                  setMessage={setMessage}
                     checkout={checkout!}
                     setPaymentStatus={setPaymentStatus}
                     description={"test tx"}
@@ -126,6 +128,11 @@ export default function CheckoutPage({
                 <p className="text-red-500">
                   Payment failed, please try again.
                 </p>
+              </div>
+            )}
+            {message && (
+              <div className="mt-6 flex flex-col justify-center text-center space-y-4">
+                <p>{message}</p>
               </div>
             )}
           </div>

@@ -22,6 +22,7 @@ interface UseCreateAndPayRequestParams {
   amount: number;
   requestParams: CreateRequestParams;
   checkout: Checkout;
+  setMessage: (message: string) => void;
 }
 
 export function useCreateAndPayRequest(
@@ -41,6 +42,7 @@ export function useCreateAndPayRequest(
       payerAddress,
       amount,
       requestParams,
+      setMessage,
     }: UseCreateAndPayRequestParams) => {
       const signer = new Web3SignatureProvider(walletClient);
       if (!address || !signer) throw new Error("Account not initialized");
@@ -49,17 +51,21 @@ export function useCreateAndPayRequest(
       // Create request
       const requestCreateParameters = createRequestParameters(requestParams);
       console.log("Getting request client...");
+      setMessage("Getting request client...");
       const requestClient = getRequestClient(walletClient);
 
-      console.log("Creating request...", requestCreateParameters);
+      console.log("Creating request...\n" + requestCreateParameters);
+      setMessage("Creating request...\n" + requestCreateParameters);
       const createdRequest = await requestClient.createRequest(
         requestCreateParameters
       );
 
       console.log("Waiting confirmation...");
+      setMessage("Waiting confirmation...");
       const confirmedRequestData = await createdRequest.waitForConfirmation();
 
       console.log("Request created", confirmedRequestData.requestId);
+      setMessage("Request created\n" + confirmedRequestData.requestId);
 
       // Prepare for payment
       const requestData = await getRequestData(
@@ -67,7 +73,9 @@ export function useCreateAndPayRequest(
         confirmedRequestData.requestId
       );
 
+      setMessage("Request data\n" + requestData);
       console.log("Request data", requestData);
+      setMessage("Processing payment...");
       console.log("Processing payment...");
       const { success, message } = await processPayment(
         requestData,
@@ -81,9 +89,11 @@ export function useCreateAndPayRequest(
       }
 
       // Send payment transaction
+      setMessage("Sending payment...");
       await sendPaymentTransaction(requestData, ethersSigner!);
 
       console.log("Payment sent");
+      setMessage("Payment sent");
       console.log("updating checkout", {
         ...checkout,
         requestId: requestData.requestId,
@@ -97,7 +107,7 @@ export function useCreateAndPayRequest(
         amount,
       });
       console.log("Checkout updated", checkout.id);
-
+      setMessage("Checkout updated\n" + checkout.id);
       return createdRequest.requestId;
     },
     ...options,
