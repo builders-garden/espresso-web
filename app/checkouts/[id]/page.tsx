@@ -9,7 +9,7 @@ import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import BNPLButton from "../../../components/bnpl-button";
-import { NFT } from "../../../lib/moralis";
+import Link from "next/link";
 
 export default function CheckoutPage({
   params: { id },
@@ -34,7 +34,7 @@ export default function CheckoutPage({
     if (!address) return;
     const response = await fetch(`/api/nfts/${address}`);
     const data = await response.json();
-    //setNFTs(data);
+    setNFTs(data);
   };
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function CheckoutPage({
                   </div>
                 </div>
               )}
-              {checkout?.items.map((item, index) => (
+              {checkout?.items?.map((item, index) => (
                 <div
                   className={`flex flex-row space-x-16 justify-between items-center p-4 rounded-lg ${
                     index % 2 === 0 ? "bg-gray-100/70" : ""
@@ -103,7 +103,7 @@ export default function CheckoutPage({
                   <p className="text-3xl font-bold">
                     $
                     {checkout.items
-                      .reduce(
+                      ?.reduce(
                         (acc, item) => acc + item.item.price * item.quantity,
                         0
                       )
@@ -191,12 +191,16 @@ export default function CheckoutPage({
                 </p>
               </div>
             )}
+            {isConnected && paymentStatus === PaymentStatus.SUCCESS && (
+              <div className="flex flex-col justify-center text-center space-y-4">
+                <Link className="text-primary" href={"/loans"}>
+                  You can check here your loans
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </>
   );
-}
-function setNFTs(data: any) {
-  throw new Error("Function not implemented.");
 }
