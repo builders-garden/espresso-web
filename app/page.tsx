@@ -1,12 +1,8 @@
 "use client";
 
 import Portal from "../components/graphics/portal";
-import { usePrivy } from "@privy-io/react-auth";
-import Head from "next/head";
 
 export default function Home() {
-  const { login } = usePrivy();
-
   return (
     <>
       <main className="flex min-h-screen min-w-full">
@@ -16,10 +12,7 @@ export default function Home() {
               <Portal style={{ maxWidth: "100%", height: "auto" }} />
             </div>
             <div className="mt-6 flex justify-center text-center">
-              <button
-                className="bg-violet-600 hover:bg-violet-700 py-3 px-6 text-white rounded-lg"
-                onClick={login}
-              >
+              <button className="bg-violet-600 hover:bg-violet-700 py-3 px-6 text-white rounded-lg">
                 Log in
               </button>
             </div>

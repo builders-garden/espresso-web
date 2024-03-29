@@ -7,7 +7,6 @@
   "packageRules": [
     {
       "packagePatterns": ["*"],
-      "excludePackagePatterns": ["@privy-io"],
       "enabled": false
     },
     {
