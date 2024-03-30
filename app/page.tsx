@@ -1,7 +1,6 @@
 "use client";
 
 import { Link } from "@nextui-org/react";
-import Portal from "../components/graphics/portal";
 
 export default function Home() {
   return (

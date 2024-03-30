@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { shortenAddress } from "../../lib/utils";
-import { http, useAccount, useToken, useWriteContract } from "wagmi";
+import { http, useAccount, useWriteContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BorrowedEvent } from "../../lib/moralis";
 import { Button, Spinner } from "@nextui-org/react";
@@ -10,7 +10,6 @@ import {
   BASE_SEPOLIA_USDC_ADDRESS,
   ESPRESSO_BNPL_CONTRACT_ADDRESS_BASE_SEPOLIA,
 } from "../../lib/constants";
-import { getAddressToRepayLoan } from "../../lib/sablier/contracts";
 import { createPublicClient } from "viem";
 import { baseSepolia } from "viem/chains";
 import { ESPRESSO_BNPL_ABI } from "../../lib/sablier/espresso-abi";
