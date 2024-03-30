@@ -41,12 +41,17 @@ export default function LoansPage() {
       chain: baseSepolia,
       transport: http(),
     });
-    const address = await getAddressToRepayLoan(loanId);
-    const tx = await writeContractAsync({
+    await writeContractAsync({
       address: BASE_SEPOLIA_USDC_ADDRESS,
-      functionName: "transfer",
       abi: ERC20_ABI,
-      args: [address, BigInt(amount * 10 ** 6)],
+      functionName: "approve",
+      args: [ESPRESSO_BNPL_CONTRACT_ADDRESS_BASE_SEPOLIA, BigInt(amount)],
+    });
+    const tx = await writeContractAsync({
+      address: ESPRESSO_BNPL_CONTRACT_ADDRESS_BASE_SEPOLIA,
+      functionName: "claimRepaidSablierCollateral",
+      abi: ESPRESSO_BNPL_ABI,
+      args: [BigInt(loanId)],
     });
     await publicClient.waitForTransactionReceipt({
       hash: tx as `0x${string}`,
@@ -68,7 +73,7 @@ export default function LoansPage() {
                 {loans.map((loan) => (
                   <div className="flex flex-col space-y-4 p-4 bg-white shadow-2xl rounded-lg">
                     <p className="text-lg font-semibold">Loan #{loan.loanId}</p>
-                    <p>Amount borrowed: {loan.amount}</p>
+                    <p>Amount borrowed: {parseFloat(loan.amount) / 10 ** 6}</p>
                     <p>
                       Deadline:{" "}
                       {new Date(
@@ -81,6 +86,7 @@ export default function LoansPage() {
                       {shortenAddress(loan.collateralNftAddress)}
                     </p>
                     <Button
+                      isLoading={paymentLoading}
                       color="primary"
                       onClick={() =>
                         repayLoan(loan.loanId, parseInt(loan.amount))

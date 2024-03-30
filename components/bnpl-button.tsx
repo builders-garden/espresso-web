@@ -11,6 +11,7 @@ import { createPublicClient, http } from "viem";
 import { PaymentStatus } from "../lib/utils";
 import { Checkout } from "../lib/firebase/interfaces";
 import { setCheckout } from "../lib/firebase/checkout";
+import { SABLIER_ABI } from "../lib/sablier/sablier-abi";
 
 export type BNPLButtonProps = {
   checkout: Checkout;

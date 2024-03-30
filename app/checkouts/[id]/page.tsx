@@ -133,7 +133,7 @@ export default function CheckoutPage({
                   <BNPLButton
                     payerAddress={address!}
                     checkout={checkout!}
-                    disabled={!nfts || nfts?.length === 0}
+                    disabled={!nfts || nfts?.length === 0 || !tokenId}
                     amount={
                       checkout?.items?.reduce(
                         (acc, item) => acc + item.item.price * item.quantity,
